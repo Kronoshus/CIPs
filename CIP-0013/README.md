@@ -21,7 +21,7 @@ License: CC-BY-4.0
 
 ## Abstract
 
-This proposal describes a basic URI scheme to handle Ada transfers and links to single stake pools or weighted lists of multiple pools.
+This proposal describes a basic URI scheme to handle ADA transfers and links to single stake pools or weighted lists of multiple pools.
 
 ## Motivation: why is this CIP necessary?
 
@@ -45,6 +45,19 @@ Pool links allow for interfaces to initiate delegation transactions without requ
 
 URIs for weighted stake pool lists provide alternatives to using a JSON file to implement *delegation portfolios* in a way that may better suit certain platforms, applications, or social contexts.
 
+### For Token Claim URIs:
+
+Distributing Native Assets (and/or ADA) to attendees of IRL events has historically been a pain point in the ecosystem. 
+Some implemented solutions have included: Pre-generating wallet seed phrases and pre-populating these wallets with a 
+minimum amount of ADA as well as the desired Native Assets, (re)creating token fountain/faucet designs which can be 
+cumbersome and not user-friendly to instruct individuals to install a wallet, visit a website, enter a code and claim 
+tokens.
+
+The Cardano Token Claim URI schema is proposed to allow wallets (particularly mobile wallets) to implement a QR-friendly
+URI structure allowing for easy onboarding and distribution of Native Assets and/or ADA to individuals in a variety of
+situations but not least of which being at IRL events specifically tailored and geared to onboarding new users to the
+ecosystem.
+
 ## Specification
 
 The core implementation should follow the [BIP-21](https://github.com/bitcoin/bips/blob/master/bip-0021.mediawiki) standard (with `bitcoin:` replaced with `web+cardano:`)
@@ -59,6 +72,7 @@ Examples:
 <a href="web+cardano://stake?c94e6fe1123bf111b77b57994bcd836af8ba2b3aa72cfcefbec2d3d4">Stake with us</a>
 <a href="web+cardano://stake?POOL1=3.14159&POOL2=2.71828">Split between our 2 related pools</a>
 <a href="web+cardano://stake?COSD">Choose our least saturated pool</a>
+<a href="web+cardano://claim?URL=claim.hosky.io/consensus23&CODE=ABC123">Claim $HOSKY</a>
 ```
 
 ### Considerations
@@ -73,11 +87,12 @@ This is an initial, simplified protocol definition for fast implementation; it o
 
 * for a payment URI (authority unspecified), an address and an optional amount parameter;
 * for a stake pool URI (authority = `stake`), a weighted list of one or more stake pools.
+* for a token claim URI (authority = `claim`), a faucet URL and an individual CODE.
 
 As discussed above, these rules are likely to evolve in order to support other capabilities of the Cardano blockchain.
 
 ```
-cardanourn = "web+cardano:" (paymentref | stakepoolref)
+cardanourn = "web+cardano:" (paymentref | stakepoolref | claimtokenref)
 
 paymentref = cardanoaddress [ "?" amountparam ]
 cardanoaddress = *(base58 | bech32)
@@ -92,6 +107,11 @@ poolhexid = 56HEXDIG
 poolticker = 3*5UNICODE
 
 proportion = *digit [ "." *digit ]
+
+claimtokenref = "//claim" claimquery
+claimquery = ( "?" claimurl) ? ( "&" claimcode)
+claimurl = text
+claimcode = text
 ```
 
 For grammar reference, see:
@@ -125,11 +145,49 @@ If, during a wallet or other application's development process, it is still only
 * any value for the first URI query argument;
 * any URI query argument beyond the first.
 
+#### Token Claim URI queries
+
+The token claim URI should consist of a required token faucet URL (HTTPS should always be assumed/enforced) and an
+optional, unique claiming code.
+
+The wallet provider should send a POST request to the provided URL that includes:
+* The change/receipt wallet address of the user
+* Optionally the provided CODE (as detected in the link)
+
+**Example:**
+
+```
+URL: https://claim.hosky.io/consensus23
+JSON POST Data:
+{
+  "address": "addr1abc...xyz",
+  "code": "ABC123"
+}
+```
+
+Faucet implementations should follow a well-documented standard to be detailed in a separate document. [Link Required]
+
+#### Note on the `address` field
+
+The wallet should always send the recipient address in bech32 format. If a particular token faucet implementation wishes
+to restrict or limit access to their faucet based on staking key or individual wallet address, this should be handled at
+the wallet end.
+
+#### Note on the `code` field
+
+The code is specified as optional but allows for reliable tracking and/or limiting of claims to the faucet host. Codes
+can be used to identify attendees of particular events (i.e. CODE = `consensus2023`) or can be a unique, one-time user
+code per user (i.e. CODE = `abc123xyz987`). In this way we leave the code to be flexible to match a variety of
+analytical use cases depending upon the needs of the implementing project.
+
 ### Security Considerations
 
 1. For payment links, we cannot prompt the user to send the funds right away as they may not be fully aware of the URI they clicked or were redirected to. Instead, it may be better to simply pre-populate fields in a transaction.
 2. For either payment or staking links, we should be wary of people who disguise links as actually opening up a phishing website that LOOKS like that corresponding part of the wallet UI.
 3. If wallets *create* stake pool links, the actual ada or lovelace balance should not be used literally as the `proportion` figure, to avoid revealing the identity of the wallet owner who is creating the portfolio (e.g. the proportions could be scaled to normalise the largest to `1`).
+4. Wallets should prompt/warn users prior to sending potentially sensitive information (wallet address + code) via the
+   token claim URI. An informational pop-up or confirmation modal should be displayed to users such as:
+   `We are about to send your address and code 123456 to https://claim.hosky.io. Are you sure you want to proceed?`
 
 ## Rationale: how does this CIP achieve its goals?
 
@@ -159,6 +217,8 @@ For a CIP based on this principle, see [CIP-0017](https://github.com/cardano-fou
   - [x] Yoroi
 - [x] There exist one or more wallets supporting Stake Pool URIs.
   - [ ] TBD
+- [X] There exists one or more wallets supporting Token Claim URIs.
+  - [X] VESPR
 
 ### Implementation Plan
 
@@ -166,6 +226,7 @@ Survey contemporary wallet developers to suggest adoption of both feature sets, 
 
 - Payment URIs
 - Stake Pool URIs
+- Token Claim URIs
 
 This survey can be conducted and/or advocated by either (ideally both):
 
