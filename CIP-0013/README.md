@@ -89,7 +89,7 @@ This is an initial, simplified protocol definition for fast implementation; it o
 
 * for a payment URI (authority unspecified), an address and an optional amount parameter;
 * for a stake pool URI (authority = `stake`), a weighted list of one or more stake pools.
-* for a token claim URI (authority = `claim`), a faucet URL and an individual CODE.
+* for a token claim URI (authority = `claim`), a faucet URL and an optional CODE.
 
 As discussed above, these rules are likely to evolve in order to support other capabilities of the Cardano blockchain.
 
