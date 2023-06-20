@@ -136,6 +136,13 @@ When there is more than one pool registered with any of the specified `poolticke
 * Any missing `proportion` is assigned a precise value of `1`.
 * If a stake pool is listed multiple times, the URI is rejected as invalid.
 
+#### Token Claim URI queries
+
+Token Claim URIs must include at minimum a URL to the token faucet/fountain hosted and maintained by the project.
+
+An optional claim code may be included in the URI to create one-time use codes or special event codes for analytical
+purposes.
+
 ### Handling stake pool links
 
 The wallet UI should always confirm the exact delegation choice even when it is unambiguous from the URI.  When the user has multiple wallets, the wallet UI must select which wallet(s) the user will be delegating from.
@@ -145,7 +152,7 @@ If, during a wallet or other application's development process, it is still only
 * any value for the first URI query argument;
 * any URI query argument beyond the first.
 
-#### Token Claim URI queries
+### Handling Token Claim URI queries
 
 The token claim URI should consist of a required token faucet URL (HTTPS should always be assumed/enforced) and an
 optional, unique claiming code.
