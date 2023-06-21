@@ -6,7 +6,7 @@ Category: Wallets
 Authors:
 - Adam Dean <adam@crypto2099.io>
 - Carl <vegas@hosky.io>
-- Alex Dochioiu <@alexdochioiu>
+- Alex Dochioiu <alex@dochioiu.com>
 Implementors:
 - VESPR Wallet
 Discussions:
@@ -64,45 +64,77 @@ The envisioned process flow for the POO Protocol is as follows:
 
 ## URI Format
 
-The URI format simply consists of the CIP-13 `web+cardano://` format, followed by the `claim` authority.
+The URI format consists of the CIP-13 `web+cardano://` scheme, followed by the `claim` authority, then a `version` path.
 
-The URI should have at least one required argument `URL` which specifies the API path to contact for an expected API
-response and may optionally include a `CODE` argument which may be unique or campaign-specific depending on the needs of
-the project.
+***NOTE: ALL ARGUMENTS SHOULD BE URL-ENCODED***
 
-**Note:** The URL argument should not contain protocol information as it should always be assumed and required to use
-HTTPS:// protocol for all requests.
+### Version 1
 
-_Examples:_
+Version 1 URIs must include `/v1` as the path of the URI.
+
+Version 1 URIs must include two required arguments:
+
+* `faucet_url` as a fully-typed URL (i.e. https://claim.hosky.io)
+* `code` as either a campaign identifier or unique, one-time use code
+
+_Version 1 Examples:_
+
+```html
+<!-- A Version 1 Cardano Claim URI with campaign identifier code -->
+<a href="web+cardano://claim/v1?faucet_url=https://claim.hosky.io&code=consensus2023">Thanks for attending Consensus 2023!</a>
+
+<!-- A Version 1 Cardano Claim URI with unique, one-time use code -->
+<a href="web+cardano://claim/v1?faucet_url=https://claim.hosky.io&code=dff6508d8dfb4e128fd67e9ff54af147">Claim your $HOSKY now!</a>
+```
+
+### Version 2
+
+Version 2 URIs must include `/v2` as the path of the URI
+
+Version 2 URIs must include one required argument:
+
+* `faucet_url` as a fully-typed URL (i.e. https://claim.hosky.io)
+
+Version 2 URIs may include additional, optional arguments:
+
+* `code` as either a campaign identifier or unique, one-time use code
+* Additional arguments should be passed by the wallet to the API server in the JSON body of the POST request.
+
+
+_Version 2 Examples:_
 ```html 
 <!-- A Cardano Claim URI with only the URL specified -->
-<a href="web+cardano://claim?URL=claim.hosky.io">Claim $HOSKY Now!</a>
+<a href="web+cardano://claim/v2?faucet_url=claim.hosky.io">Claim $HOSKY Now!</a>
 
-<!-- A Cardano Claim URI with the URL specified and a campaign-specific CODE -->
-<a href="web+cardano://claim?URL=claim.nftxlv.com&CODE=NFTxLV2023">Claim your NFTxLV 2023 NFT now!</a>
+<!-- A Cardano Claim URI with a campaign-specific code -->
+<a href="web+cardano://claim/v2?faucet_url=claim.nftxlv.com&code=NFTxLV2023">Claim your NFTxLV 2023 NFT now!</a>
 
-<!-- A Cardano Claim URI with the URL specified and a unique, one-time use CODE -->
-<a href="web+cardano://claim?URL=claim.hosky.io&CODE=ABC123">Claim Some $HOSKY!</a>
+<!-- A Cardano Claim URI with a unique, one-time use code -->
+<a href="web+cardano://claim/v2?faucet_url=claim.hosky.io&code=ABC123">Claim Some $HOSKY!</a>
+
+<!-- A Cardano Claim URI with a campaign-specific code and optional user_id -->
+<a href="web+cardano://claim/v2?faucet_url=claim.hosky.io&code=NFTxLV2023&user_id=Idjiot1337">Get your $HOSKY!</a>
 ```
 
 ## Wallet Requests
 
 Light wallets that detect and support `web+cardano` URIs as well as mobile wallets who detect either a QR code or other
-link with this format should parse the URI should send a `POST` request to the specified URL containing a JSON payload
+link with this format should parse the URI and send a `POST` request to the specified URL containing a JSON payload
 including:
+
 * The user's wallet receive address
-* The code (if present in the URI)
+* The code (if present in the URI [required for Version 1])
 
 _Examples:_
 ```json 
-URI: web+cardano://claim?URL=claim.hosky.io
+URI: web+cardano://claim/v1?faucet_url=https://claim.hosky.io
 URL: https://claim.hosky.io
 POST JSON Data:
 {
   "address": "addr1abc...xyz"
 }
 
-URI: web+cardano://claim?URL=claim.nftxlv.com&CODE=NFTxLV2023
+URI: web+cardano://claim/v1?faucet_url=https://claim.nftxlv.com&code=NFTxLV2023
 URL: https://claim.nftxlv.com
 JSON POST Data:
 {
@@ -110,16 +142,28 @@ JSON POST Data:
   "code": "NFTxLV2023"
 }
 
-URI: web+cardano://claim?URL=claim.hosky.io&CODE=ABC123
+URI: web+cardano://claim/v1?faucet_url=https://claim.hosky.io&code=ABC123
 URL: https://claim.hosky.io
 POST JSON Data:
 {
   "address": "addr1abc...xyz",
   "code": "ABC123"
 }
+
+URI: web+cardano://claim/v2?faucet_url=https%3A%2F%2Fclaim.nftxlv.com&code=NFTxLV2023&user_id=Adam1337
+URL: https://claim.nftxlv.com
+POST JSON Data:
+{
+  "address": "addr1abc...xyz",
+  "code": "NFTxLV2023",
+  "user_id": "Adam1337"
+}
 ```
 
 ## API Server Response Codes
+
+The API server is expected to return one of the following defined status blocks in `application/json` format. Any other
+responses from the API server should be considered invalid and discarded or display an error.
 
 ### Successful Responses
 
@@ -131,10 +175,10 @@ First Successful Request
 {
   "code": 200,
   "lovelaces": 2000000,
-  "queue_position": 1,
+  "queue_position": 23,
   "status": "accepted",
   "tokens": {
-    "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235.HOSKY": "29433292.000000"
+    "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235.HOSKY": "29433292000000"
   }
 }
 ```
@@ -150,7 +194,7 @@ Subsequent Successful Request (Address + Code Match) prior to token distribution
   "queue_position": 1,
   "status": "queued",
   "tokens": {
-    "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235.HOSKY": "29433292.000000"
+    "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235.HOSKY": "29433292000000"
   }
 }
 ```
@@ -165,7 +209,7 @@ Subsequent Successful Request (Address + Code Match) after token(s) are distribu
   "lovelaces": 2000000,
   "status": "claimed",
   "tokens": {
-    "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235.HOSKY": "29433292.000000"
+    "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235.HOSKY": "29433292000000"
   },
   "tx_hash": "TX1234"
 }
