@@ -68,7 +68,7 @@ Rationale:
 - Many wallets support multiple currencies. Following the same standard will ensure higher adoption of our protocol.
 
 Examples:
-```
+```html
 <!-- Payment URIs -->
 <a href="web+cardano:Ae2tdPwUPEZ76BjmWDTS7poTekAvNqBjgfthF92pSLSDVpRVnLP7meaFhVd">Donate</a>
 
@@ -78,9 +78,9 @@ Examples:
 <a href="web+cardano://stake?COSD">Choose our least saturated pool</a>
 
 <!-- Token Claim URIs -->
-<a href="web+cardano://claim?URL=claim.nftxlv.com">Claim NFTxLV Commermorative NFT!</a>
-<a href="web+cardano://claim?URL=claim.hosky.io&CODE=consensus2023">Claim $HOSKY</a>
-<a href="web+cardano://claim?URL=claim.hosky.io/consensus23&CODE=ABC123">Claim $HOSKY</a>
+<a href="web+cardano://claim/v1?faucet_url=https%3A%2F%2Fclaim.hosky.io&code=consensus2023">Claim $HOSKY</a>
+<a href="web+cardano://claim/v1?faucet_url=https%3A%2F%2Fclaim.hosky.io%2Fconsensus23&code=ABC123">Claim $HOSKY</a>
+<a href="web+cardano://claim/v2?faucet_url=https%3A%2F%2Fclaim.nftxlv.com">Claim NFTxLV Commermorative NFT!</a>
 ```
 
 ### Considerations
@@ -95,7 +95,7 @@ This is an initial, simplified protocol definition for fast implementation; it o
 
 * for a payment URI (authority unspecified), an address and an optional amount parameter;
 * for a stake pool URI (authority = `stake`), a weighted list of one or more stake pools.
-* for a token claim URI (authority = `claim`), a faucet URL and an optional CODE.
+* for a token claim URI (authority = `claim`), a versioning path, a `faucet_url` and an optional `code` (required in v1).
 
 As discussed above, these rules are likely to evolve in order to support other capabilities of the Cardano blockchain.
 
@@ -116,10 +116,11 @@ poolticker = 3*5UNICODE
 
 proportion = *digit [ "." *digit ]
 
-claimtokenref = "//claim" claimquery
-claimquery = ( "?" claimurl) ? ( "&" claimcode)
-claimurl = text
-claimcode = text
+claimtokenref = "//claim" claimversion claimquery
+claimversion = "/v1" | "/v2"
+claimquery = ( "?" claimurl) ?( "&" claimcode)
+claimurl = "faucet_url=" text
+claimcode = "code=" text
 ```
 
 For grammar reference, see:
@@ -146,10 +147,19 @@ When there is more than one pool registered with any of the specified `poolticke
 
 #### Token Claim URI queries
 
-Token Claim URIs must include at minimum a URL to the token faucet/fountain hosted and maintained by the project.
+Token Claim URIs must include a path indicating protocol version and at minimum a `faucet_url` argument pointing to the
+faucet hosted and maintained by the project.
 
-An optional claim code may be included in the URI to create one-time use codes or special event codes for analytical
-purposes.
+**All arguments for Token Claim URIs should be URL-encoded**
+
+***Version 1 URIs***
+
+Version 1 URIs must include a `faucet_url` and a `code` as required parameters.
+
+***Version 2 URIs***
+
+Version 2 URIs must include a `faucet_url` and may optionally include a `code` or other arguments per the needs of the
+project's faucet API.
 
 ### Handling stake pool links
 
@@ -162,17 +172,23 @@ If, during a wallet or other application's development process, it is still only
 
 ### Handling Token Claim URI queries
 
-The token claim URI should consist of a required token faucet URL (HTTPS should always be assumed/enforced) and an
-optional, unique claiming code.
+The token claim URI should consist of a required versioning `path` (i.e. `/v1` or `/v2`) as well as one or more required
+or optional URL-encoded arguments.
 
-The wallet provider should send a POST request to the provided URL that includes:
+All Token Claim URIs must include a URL-encoded `faucet_url` argument. The `code` argument is required for Version 1
+Claim URIs while being flagged as optional for Version 2 and beyond.
+
+The wallet provider should send a POST request to the provided `Faucet URL` that includes:
 * The change/receipt wallet address of the user
-* Optionally the provided CODE (as detected in the link)
+* Any additional arguments specified in the URI as key: value pairs
 
 **Example:**
 
 ```
+URI: web+cardano://claim/v1?faucet_url=https%3A%2F%2Fclaim.hosky.io%2Fconsensus23&code=ABC123
+Version: 1
 URL: https://claim.hosky.io/consensus23
+CODE: ABC123
 JSON POST Data:
 {
   "address": "addr1abc...xyz",
@@ -180,7 +196,8 @@ JSON POST Data:
 }
 ```
 
-Faucet implementations should follow a well-documented standard to be detailed in a separate document. [Link Required]
+Faucet implementations should follow a well-documented API standard to be detailed in a separate CIP document.
+[Link Required]
 
 #### Note on the `address` field
 
@@ -190,10 +207,11 @@ the wallet end.
 
 #### Note on the `code` field
 
-The code is specified as optional but allows for reliable tracking and/or limiting of claims to the faucet host. Codes
-can be used to identify attendees of particular events (i.e. CODE = `consensus2023`) or can be a unique, one-time user
-code per user (i.e. CODE = `abc123xyz987`). In this way we leave the code to be flexible to match a variety of
-analytical use cases depending upon the needs of the implementing project.
+The code is required in Version 1 but specified as optional in Version 2 and beyond. Specifying a `code` allows for
+reliable tracking and/or limiting of claims to the faucet host. Codes can be used to identify attendees of particular
+events (i.e. CODE = `consensus2023`) or can be a unique, one-time code per user (i.e. CODE = `abc123xyz987`). In this
+way we leave the code to be flexible to match a variety of analytical use cases depending upon the needs of the
+implementing project.
 
 ### Security Considerations
 
