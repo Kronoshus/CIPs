@@ -81,10 +81,10 @@ _Version 1 Examples:_
 
 ```html
 <!-- A Version 1 Cardano Claim URI with campaign identifier code -->
-<a href="web+cardano://claim/v1?faucet_url=https://claim.hosky.io&code=consensus2023">Thanks for attending Consensus 2023!</a>
+<a href="web+cardano://claim/v1?faucet_url=https%3A%2F%2Fclaim.hosky.io&code=consensus2023">Thanks for attending Consensus 2023!</a>
 
 <!-- A Version 1 Cardano Claim URI with unique, one-time use code -->
-<a href="web+cardano://claim/v1?faucet_url=https://claim.hosky.io&code=dff6508d8dfb4e128fd67e9ff54af147">Claim your $HOSKY now!</a>
+<a href="web+cardano://claim/v1?faucet_url=https%3A%2F%2Fclaim.hosky.io&code=dff6508d8dfb4e128fd67e9ff54af147">Claim your $HOSKY now!</a>
 ```
 
 ### Version 2
@@ -104,16 +104,16 @@ Version 2 URIs may include additional, optional arguments:
 _Version 2 Examples:_
 ```html 
 <!-- A Cardano Claim URI with only the URL specified -->
-<a href="web+cardano://claim/v2?faucet_url=claim.hosky.io">Claim $HOSKY Now!</a>
+<a href="web+cardano://claim/v2?faucet_url=https%3A%2F%2Fclaim.hosky.io">Claim $HOSKY Now!</a>
 
 <!-- A Cardano Claim URI with a campaign-specific code -->
-<a href="web+cardano://claim/v2?faucet_url=claim.nftxlv.com&code=NFTxLV2023">Claim your NFTxLV 2023 NFT now!</a>
+<a href="web+cardano://claim/v2?faucet_url=https%3A%2F%2Fclaim.nftxlv.com&code=NFTxLV2023">Claim your NFTxLV 2023 NFT now!</a>
 
 <!-- A Cardano Claim URI with a unique, one-time use code -->
-<a href="web+cardano://claim/v2?faucet_url=claim.hosky.io&code=ABC123">Claim Some $HOSKY!</a>
+<a href="web+cardano://claim/v2?faucet_url=https%3A%2F%2Fclaim.hosky.io&code=ABC123">Claim Some $HOSKY!</a>
 
 <!-- A Cardano Claim URI with a campaign-specific code and optional user_id -->
-<a href="web+cardano://claim/v2?faucet_url=claim.hosky.io&code=NFTxLV2023&user_id=Idjiot1337">Get your $HOSKY!</a>
+<a href="web+cardano://claim/v2?faucet_url=https%3A%2F%2Fclaim.hosky.io&code=NFTxLV2023&user_id=Idjiot1337">Get your $HOSKY!</a>
 ```
 
 ## Wallet Requests
@@ -127,14 +127,14 @@ including:
 
 _Examples:_
 ```json 
-URI: web+cardano://claim/v1?faucet_url=https://claim.hosky.io
+URI: web+cardano://claim/v1?faucet_url=https%3A%2F%2Fclaim.hosky.io
 URL: https://claim.hosky.io
 POST JSON Data:
 {
   "address": "addr1abc...xyz"
 }
 
-URI: web+cardano://claim/v1?faucet_url=https://claim.nftxlv.com&code=NFTxLV2023
+URI: web+cardano://claim/v1?faucet_url=https%3A%2F%2Fclaim.nftxlv.com&code=NFTxLV2023
 URL: https://claim.nftxlv.com
 JSON POST Data:
 {
@@ -142,7 +142,7 @@ JSON POST Data:
   "code": "NFTxLV2023"
 }
 
-URI: web+cardano://claim/v1?faucet_url=https://claim.hosky.io&code=ABC123
+URI: web+cardano://claim/v1?faucet_url=https%3A%2F%2Fclaim.hosky.io&code=ABC123
 URL: https://claim.hosky.io
 POST JSON Data:
 {
