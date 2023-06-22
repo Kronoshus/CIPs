@@ -174,7 +174,7 @@ First Successful Request
 ```json
 {
   "code": 200,
-  "lovelaces": 2000000,
+  "lovelaces": "2000000",
   "queue_position": 23,
   "status": "accepted",
   "tokens": {
@@ -190,7 +190,7 @@ Subsequent Successful Request (Address + Code Match) prior to token distribution
 ```json
 {
   "code": 201,
-  "lovelaces": 2000000,
+  "lovelaces": "2000000",
   "queue_position": 1,
   "status": "queued",
   "tokens": {
@@ -206,7 +206,7 @@ Subsequent Successful Request (Address + Code Match) after token(s) are distribu
 ```json
 {
   "code": 202,
-  "lovelaces": 2000000,
+  "lovelaces": "2000000",
   "status": "claimed",
   "tokens": {
     "a0028f350aaabe0545fdcb56b039bfb08e4bb4d8c4d7c3c7d481c235.HOSKY": "29433292000000"
