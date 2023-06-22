@@ -165,6 +165,12 @@ POST JSON Data:
 The API server is expected to return one of the following defined status blocks in `application/json` format. Any other
 responses from the API server should be considered invalid and discarded or display an error.
 
+The expected API that any token fountain implementation should follow and wallet integrators should expect is documented
+on Swagger!
+
+* [Version 1](https://app.swaggerhub.com/apis/CatastrophicCardano/FaucetAPI/1)
+* [Version 2](https://app.swaggerhub.com/apis/CatastrophicCardano/FaucetAPI/2)
+
 ### Successful Responses
 
 #### Valid (200)
@@ -291,8 +297,9 @@ marketing and event efforts: Proof of Onboarding.
 
 ## Acceptance Criteria
 
-- [ ] Demonstrate a working MVP including open source code
-- [ ] Receive and iterate based on community feedback
+- [ ] Demonstrate a working MVP
+- [ ] Open source an MVP example of token faucet server-side code
+- [ ] Receive feedback and iterate on Version 2 based on community feedback
 
 ## Implementation Plan
 

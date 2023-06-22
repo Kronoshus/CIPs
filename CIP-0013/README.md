@@ -190,6 +190,8 @@ Version: 1
 URL: https://claim.hosky.io/consensus23
 CODE: ABC123
 JSON POST Data:
+```
+```json
 {
   "address": "addr1abc...xyz",
   "code": "ABC123"
@@ -197,7 +199,7 @@ JSON POST Data:
 ```
 
 Faucet implementations should follow a well-documented API standard to be detailed in a separate CIP document.
-[Link Required]
+[API Standard Documentation](https://app.swaggerhub.com/apis/CatastrophicCardano/FaucetAPI/1) (OpenAPI)
 
 #### Note on the `address` field
 
@@ -251,7 +253,10 @@ For a CIP based on this principle, see [CIP-0017](https://github.com/cardano-fou
 - [x] There exist one or more wallets supporting Stake Pool URIs.
   - [ ] TBD
 - [X] There exists one or more wallets supporting Token Claim URIs.
-  - [X] VESPR
+  - Version 1
+    - [X] VESPR
+  - Version 2
+    - [ ] VESPR
 
 ### Implementation Plan
 
